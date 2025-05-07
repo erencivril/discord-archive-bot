@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block title %}Bot Logs - Discord Bot Admin{% endblock %}
+
+{% block content %}
+<h1>Bot Service Logs</h1>
+<p>Showing the last 100 log entries (most recent first).</p>
+<a href="{{ url_for('bot_logs') }}" class="btn btn-secondary btn-sm mb-3">Refresh Logs</a>
+
+{% if logs %}
+<div class="card">
+    <div class="card-body">
+        <div id="logs-container" style="white-space: pre-wrap; word-wrap: break-word; max-height: 600px; overflow-y: auto; font-family: monospace;">
+            <!-- Logs will be dynamically loaded here -->
+        </div>
+        <div id="logs-error" class="text-danger mt-2"></div>
+    </div>
+</div>
+{% else %}
+<p>No logs found or unable to fetch logs. Check permissions (user 'eren' should be in 'systemd-journal' group) and ensure the service has run.</p>
+{% endif %}
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+function fetchLogs() {
+    fetch("{{ url_for('bot_logs_json') }}")
+        .then(response => response.json())
+        .then(data => {
+            const logsContainer = document.getElementById('logs-container');
+            const errorDiv = document.getElementById('logs-error');
+            errorDiv.textContent = '';
+            if (data.logs && data.logs.length > 0) {
+                logsContainer.innerHTML = data.logs.map(
+                    entry => `<span style="color:#888;">${entry.timestamp}</span> ${entry.message}`
+                ).join('<br>');
+            } else {
+                logsContainer.innerHTML = '<em>No logs found.</em>';
+            }
+        })
+        .catch(error => {
+            document.getElementById('logs-error').textContent = 'Error fetching logs: ' + error;
+        });
+}
+
+// Initial fetch and poll every 10 seconds
+document.addEventListener('DOMContentLoaded', function() {
+    fetchLogs();
+    setInterval(fetchLogs, 10000);
+});
+</script>
+{% endblock %}

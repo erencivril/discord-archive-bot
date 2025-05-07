@@ -1,0 +1,257 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>{% block title %}Discord Bot Admin{% endblock %}</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootswatch@5.3.1/dist/vapor/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { 
+            padding-top: 5rem;
+            font-family: 'Roboto', sans-serif;
+        }
+        .flash-message { 
+            margin-top: 1rem; 
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .pagination { 
+            justify-content: center; 
+            margin: 20px 0;
+        }
+        .search-form { 
+            margin-bottom: 1.5rem;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.15);
+            border-radius: 10px;
+        }
+        .table-responsive {
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+        .table th, .table td { 
+            vertical-align: middle; 
+            padding: 12px 15px;
+        }
+        .action-button { 
+            white-space: nowrap; 
+            margin: 2px;
+        }
+        .card {
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            transition: transform 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        .card-header {
+            font-weight: bold;
+            padding: 15px;
+        }
+        .nav-link {
+            font-weight: 500;
+            padding: 0.8rem 1rem;
+            transition: all 0.3s ease;
+        }
+        .nav-link:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 6px;
+        }
+        .nav-link.active {
+            background-color: rgba(255, 255, 255, 0.2);
+            border-radius: 6px;
+        }
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.4rem;
+            letter-spacing: 0.5px;
+        }
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 5px;
+        }
+        .status-active {
+            background-color: #28a745;
+        }
+        .status-inactive {
+            background-color: #dc3545;
+        }
+        .widget-value {
+            font-size: 2rem;
+            font-weight: bold;
+        }
+        .stats-label {
+            font-size: 1rem;
+            color: rgba(255, 255, 255, 0.8);
+        }
+        footer {
+            margin-top: 50px;
+            padding: 20px 0;
+            text-align: center;
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.6);
+        }
+        /* Dark mode toggle */
+        .theme-switch {
+            position: relative;
+            margin-left: 10px;
+        }
+        .theme-switch-wrapper {
+            display: flex;
+            align-items: center;
+        }
+        .theme-switch input {
+            display: none;
+        }
+        .slider {
+            background-color: #ccc;
+            bottom: 0;
+            cursor: pointer;
+            left: 0;
+            position: absolute;
+            right: 0;
+            top: 0;
+            transition: .4s;
+            border-radius: 34px;
+        }
+        .slider:before {
+            background-color: #fff;
+            bottom: 4px;
+            content: "";
+            height: 20px;
+            left: 4px;
+            position: absolute;
+            transition: .4s;
+            width: 20px;
+            border-radius: 50%;
+        }
+        input:checked + .slider {
+            background-color: #2196F3;
+        }
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+    </style>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-md navbar-dark bg-primary fixed-top">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="{{ url_for('index') }}">
+            <i class="fab fa-discord me-2"></i>Discord Bot
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain" aria-controls="navbarMain" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarMain">
+            <ul class="navbar-nav me-auto mb-2 mb-md-0">
+                <li class="nav-item">
+                    <a class="nav-link {% if request.endpoint == 'index' %}active{% endif %}" aria-current="page" href="{{ url_for('index') }}">
+                        <i class="fas fa-tachometer-alt me-1"></i> Dashboard
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if request.endpoint == 'view_messages' %}active{% endif %}" href="{{ url_for('view_messages') }}">
+                        <i class="fas fa-comments me-1"></i> Messages
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if request.endpoint == 'view_attachments' %}active{% endif %}" href="{{ url_for('view_attachments') }}">
+                        <i class="fas fa-paperclip me-1"></i> Attachments
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if request.endpoint == 'settings' %}active{% endif %}" href="{{ url_for('settings') }}">
+                        <i class="fas fa-cogs me-1"></i> Settings
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if request.endpoint == 'bot_logs' %}active{% endif %}" href="{{ url_for('bot_logs') }}">
+                        <i class="fas fa-file-alt me-1"></i> Bot Logs
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if request.endpoint == 'view_app_logs' %}active{% endif %}" href="{{ url_for('view_app_logs') }}">
+                        <i class="fas fa-clipboard-list me-1"></i> App Logs
+                    </a>
+                </li>
+            </ul>
+            <div class="d-flex">
+    <div id="bot-status-indicator" class="d-flex align-items-center me-3 pt-2">
+        <span id="status-dot" class="status-indicator"></span>
+        <span id="status-text" class="ms-2">Loading...</span>
+    </div>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<main class="container">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+            <div class="alert alert-{{ category }} alert-dismissible fade show flash-message" role="alert">
+                <i class="fas {% if category == 'success' %}fa-check-circle{% elif category == 'danger' %}fa-exclamation-circle{% elif category == 'warning' %}fa-exclamation-triangle{% else %}fa-info-circle{% endif %} me-2"></i>
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    {% block content %}{% endblock %}
+</main>
+
+<footer class="bg-dark text-light">
+    <div class="container">
+        <div class="row">
+                <div class="col-md-12">
+                    <p>Discord Bot Admin Panel &copy; {{ current_year }}</p>
+                </div>
+        </div>
+    </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.3.0/dist/chart.umd.min.js"></script>
+<script>
+    // Bot status indicator
+    function updateBotStatus() {
+        fetch('{{ url_for("bot_status") }}')
+        .then(response => response.json())
+        .then(data => {
+            const statusDot = document.getElementById('status-dot');
+            const statusText = document.getElementById('status-text');
+            
+            if (data.status === 'active') {
+                statusDot.className = 'status-indicator status-active';
+                statusText.textContent = 'Bot Active';
+            } else {
+                statusDot.className = 'status-indicator status-inactive';
+                statusText.textContent = 'Bot Inactive';
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching bot status:', error);
+            document.getElementById('status-text').textContent = 'Status Unknown';
+        });
+    }
+    
+    // Update status on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        updateBotStatus();
+        // Refresh status every 30 seconds
+        setInterval(updateBotStatus, 30000);
+    });
+</script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

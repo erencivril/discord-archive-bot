@@ -1,0 +1,8 @@
+discord.py
+python-dotenv
+psycopg2-binary
+requests
+Flask
+SQLAlchemy
+gunicorn
+psutil

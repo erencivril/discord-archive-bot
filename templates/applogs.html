@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+
+{% block title %}Application Logs - Discord Bot Admin{% endblock %}
+
+{% block content %}
+<h1>Application Logs</h1>
+
+<form method="get" action="{{ url_for('view_app_logs') }}" class="row g-3 align-items-center mb-3">
+    <div class="col-auto">
+        <label for="level" class="form-label">Level</label>
+        <select class="form-select" id="level" name="level">
+            <option value="">All</option>
+            {% for lvl in all_levels %}
+                <option value="{{ lvl }}" {% if lvl == level %}selected{% endif %}>{{ lvl }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="col-auto">
+        <label for="event_type" class="form-label">Event Type</label>
+        <select class="form-select" id="event_type" name="event_type">
+            <option value="">All</option>
+            {% for et in all_event_types %}
+                <option value="{{ et }}" {% if et == event_type %}selected{% endif %}>{{ et }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="col-auto">
+        <label for="search" class="visually-hidden">Search</label>
+        <input type="text" class="form-control" id="search" name="search" placeholder="Search message..." value="{{ search or '' }}">
+    </div>
+    <div class="col-auto">
+        <button type="submit" class="btn btn-primary">Filter</button>
+    </div>
+    {% if level or event_type or search %}
+    <div class="col-auto">
+        <a href="{{ url_for('view_app_logs') }}" class="btn btn-secondary">Clear</a>
+    </div>
+    {% endif %}
+</form>
+
+{% if logs %}
+<div class="table-responsive">
+    <table class="table table-striped table-hover align-middle">
+        <thead>
+            <tr>
+                <th>Timestamp</th>
+                <th>Level</th>
+                <th>Event Type</th>
+                <th>Message</th>
+                <th>Extra</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for log in logs %}
+            <tr>
+                <td>{{ log.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                <td><span class="badge bg-{{ 'danger' if log.level == 'ERROR' else 'warning' if log.level == 'WARNING' else 'info' }}">{{ log.level }}</span></td>
+                <td>{{ log.event_type }}</td>
+                <td>{{ log.message }}</td>
+                <td>
+                    {% if log.extra %}
+                        <button class="btn btn-sm btn-outline-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#extra-{{ log.id }}" aria-expanded="false" aria-controls="extra-{{ log.id }}">
+                            Show
+                        </button>
+                        <div class="collapse mt-2" id="extra-{{ log.id }}">
+                            <pre class="mb-0" style="font-size: 0.9em;">{{ json.dumps(log.extra, ensure_ascii=False, indent=2) }}</pre>
+                        </div>
+                    {% else %}
+                        <span class="text-muted">-</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Pagination -->
+{% if total_pages > 1 %}
+<nav aria-label="Page navigation">
+    <ul class="pagination justify-content-center">
+        <li class="page-item {% if page <= 1 %}disabled{% endif %}">
+            <a class="page-link" href="{{ url_for('view_app_logs', page=page-1, level=level, event_type=event_type, search=search) if page > 1 else '#' }}" aria-label="Previous"><span aria-hidden="true">&laquo;</span></a>
+        </li>
+        {% for page_num in range(1, total_pages + 1) %}
+             <li class="page-item {% if page_num == page %}active{% endif %}">
+                 <a class="page-link" href="{{ url_for('view_app_logs', page=page_num, level=level, event_type=event_type, search=search) }}">{{ page_num }}</a>
+             </li>
+        {% endfor %}
+        <li class="page-item {% if page >= total_pages %}disabled{% endif %}">
+            <a class="page-link" href="{{ url_for('view_app_logs', page=page+1, level=level, event_type=event_type, search=search) if page < total_pages else '#' }}" aria-label="Next"><span aria-hidden="true">&raquo;</span></a>
+        </li>
+    </ul>
+</nav>
+<p class="text-center">Page {{ page }} of {{ total_pages }} (Total: {{ "{:,}".format(total) }} logs)</p>
+{% elif total > 0 %}
+<p class="text-center">Total: {{ "{:,}".format(total) }} logs</p>
+{% endif %}
+
+{% else %}
+<p>No logs found{% if level or event_type or search %} matching your filters{% endif %}.</p>
+{% endif %}
+
+{% endblock %}

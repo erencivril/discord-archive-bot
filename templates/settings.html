@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+
+{% block title %}Settings - Discord Bot Admin{% endblock %}
+
+{% block content %}
+<h1>Bot Settings</h1>
+
+<div class="card mb-4">
+    <div class="card-body">
+        <h5 class="card-title">Response Probabilities</h5>
+        <p>Configure the likelihood of the bot performing different actions when a message is received. The sum should not exceed 1.0.</p>
+        <form method="post" action="{{ url_for('settings') }}">
+            <div class="mb-3 row">
+                <label for="prob_archive_reply" class="col-sm-4 col-form-label">Archive Reply Probability:</label>
+                <div class="col-sm-8">
+                    <input type="number" step="0.01" min="0.0" max="1.0" class="form-control" id="prob_archive_reply" name="prob_archive_reply" value="{{ prob_archive }}" required>
+                    <div class="form-text">Chance (0.0 to 1.0) to post a random message/attachment from the archive.</div>
+                </div>
+            </div>
+            <div class="mb-3 row">
+                <label for="prob_ai_reply" class="col-sm-4 col-form-label">AI Reply Probability:</label>
+                <div class="col-sm-8">
+                    <input type="number" step="0.01" min="0.0" max="1.0" class="form-control" id="prob_ai_reply" name="prob_ai_reply" value="{{ prob_ai }}" required>
+                     <div class="form-text">Chance (0.0 to 1.0) to generate an AI response via OpenRouter.</div>
+                </div>
+            </div>
+             <div class="mb-3 row">
+                 <div class="col-sm-8 offset-sm-4">
+                    <p class="form-text">
+                        (Chance of doing nothing: {{ "%.2f"|format(1.0 - (prob_archive|float) - (prob_ai|float)) }})
+                    </p>
+                 </div>
+             </div>
+
+            <div class="mb-3 row">
+                <label for="ai_mention_cooldown" class="col-sm-4 col-form-label">AI Mention Cooldown (seconds):</label>
+                <div class="col-sm-8">
+                    <input type="number" step="1" min="0" class="form-control" id="ai_mention_cooldown" name="ai_mention_cooldown" value="{{ ai_mention_cooldown }}" required>
+                    <div class="form-text">Cooldown period for non-owner users to get AI responses when mentioning the bot.</div>
+                </div>
+            </div>
+            <div class="mb-3 row">
+                <label for="openrouter_chat_model" class="col-sm-4 col-form-label">OpenRouter Chat Model:</label>
+                <div class="col-sm-8">
+                    <input type="text" class="form-control" id="openrouter_chat_model" name="openrouter_chat_model" value="{{ openrouter_chat_model }}" required>
+                    <div class="form-text">Model used for probabilistic AI responses (e.g., microsoft/mai-ds-r1:free).</div>
+                </div>
+            </div>
+            <div class="mb-3 row">
+                <label for="openrouter_mention_model" class="col-sm-4 col-form-label">OpenRouter Mention Model:</label>
+                <div class="col-sm-8">
+                    <input type="text" class="form-control" id="openrouter_mention_model" name="openrouter_mention_model" value="{{ openrouter_mention_model }}" required>
+                    <div class="form-text">Model used for AI responses when bot is mentioned (e.g., google/gemini-flash-1.5).</div>
+                </div>
+            </div>
+            <div class="mb-3 row">
+                <label for="mention_system_prompt" class="col-sm-4 col-form-label">Mention System Prompt:</label>
+                <div class="col-sm-8">
+                    <textarea class="form-control" id="mention_system_prompt" name="mention_system_prompt" rows="4" required>{{ mention_system_prompt }}</textarea>
+                    <div class="form-text">System prompt used specifically for AI responses when the bot is mentioned.</div>
+                </div>
+            </div>
+            <div class="mb-3 row">
+                <label class="col-sm-4 col-form-label">Enable Voice Protection:</label>
+                <div class="col-sm-8 d-flex align-items-center">
+                    <input type="checkbox" class="form-check-input" id="enable_voice_protection" name="enable_voice_protection" value="true" {% if enable_voice_protection %}checked{% endif %}>
+                    <label class="form-check-label ms-2" for="enable_voice_protection">Protect owner from voice mutes/deafens/disconnects</label>
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary">Save Settings & Restart Bot</button>
+            <p class="mt-2"><small>Note: Saving will attempt to restart the bot service to apply changes. Requires correct sudoers configuration.</small></p>
+        </form>
+    </div>
+</div>
+
+{% endblock %}
