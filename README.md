@@ -1,5 +1,8 @@
 # Archive DiscordBot
 
+This project is the actual bot i was using and i own the code
+
+
 Archive DiscordBot is a Python-based Discord bot project that is made by Eren Çivril and web interface that archives messages and attachments from a designated server, offers randomized archive replies, and generates AI-driven responses in Turkish. The project includes a Flask-powered admin UI for monitoring, searching, and controlling the bot.
 
 ## Features
